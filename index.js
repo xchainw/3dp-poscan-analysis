@@ -1,5 +1,6 @@
 // Import the API
 const {ApiPromise, WsProvider} = require('@polkadot/api');
+const fs = require('fs');
 async function main() {
     const rpcUrl = "wss://rpc.3dpscan.io";
     const provider = new WsProvider(rpcUrl);
@@ -30,11 +31,20 @@ async function main() {
             .sort((a, b) => b[1] - a[1]);
 
         // Print statistics
-        console.log('\nOutlier Evaluator Statistics:');
-        console.log('Total number of outlier evaluators:', outlierCounts.size);
-        console.log('\nDetailed Statistics:');
+        const stats = [
+            '\nOutlier Evaluator Statistics:',
+            `Total number of outlier evaluators: ${outlierCounts.size}`,
+            '\nDetailed Statistics:'
+        ];
+        
         sortedOutliers.forEach(([accountId, count]) => {
-            console.log(`${accountId} appeared ${count} times (${((count/objCount)*100).toFixed(2)}%)`);
+            stats.push(`${accountId} appeared ${count} times (${((count/objCount)*100).toFixed(2)}%)`);
+        });
+
+        // Output to both console and file
+        stats.forEach(line => {
+            console.log(line);
+            fs.appendFileSync('output.log', line + '\n');
         });
 
     } catch (error) {

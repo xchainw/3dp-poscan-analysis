@@ -1,0 +1,34 @@
+name: Run Script and Release Log
+
+on:
+  push:
+    tags:
+      - 'analysis_*'
+
+jobs:
+  run-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Run script
+        run: node index.js
+        
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: output.log
+          tag_name: ${{ github.ref_name }}
+          name: Log for ${{ github.ref_name }}
+          body: Automated log generation for tag ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
